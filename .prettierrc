@@ -1,10 +1,12 @@
 {
-  "singleQuote": true,
-  "bracketSpacing": true,
-  "semi": false,
   "arrowParens": "avoid",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "jsxSingleQuote": true,
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
   "trailingComma": "none",
-  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
   "importOrder": [
     "^(react/(.*)$)|^(react$)",
     "",
@@ -12,7 +14,8 @@
     "",
     "<THIRD_PARTY_MODULES>",
     "",
-    "^@/fonts/(.*)$",
+    "^types$",
+    "^@/types/(.*)$",
     "",
     "^@/config/(.*)$",
     "",
@@ -20,13 +23,27 @@
     "",
     "^@/hooks/(.*)$",
     "",
+    "^@/components/ui/(.*)$",
     "^@/components/(.*)$",
     "",
-    "<TYPES>",
+    "^@/registry/(.*)$",
+    "",
+    "^@/styles/(.*)$",
     "",
     "^@/app/(.*)$",
     "",
+    "^@/public/(.*)$",
+    "",
     "^[./]"
   ],
-  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"]
+  "importOrderSeparation": false,
+  "importOrderSortSpecifiers": true,
+  "importOrderBuiltinModulesToTop": true,
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrderMergeDuplicateImports": true,
+  "importOrderCombineTypeAndValueImports": true,
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ]
 }
