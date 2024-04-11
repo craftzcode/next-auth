@@ -1,19 +1,25 @@
 'use client'
 
+import { useEffect } from 'react'
+
 import { redirect, usePathname, useSearchParams } from 'next/navigation'
 
-import { API, GET_CURRENT_USER } from '@/api'
-import { useQuery } from '@tanstack/react-query'
+import { API, GET_CURRENT_USER, REFRESH_ACCESS_TOKEN } from '@/api'
+import { useAuth } from '@/context/auth-context'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { UserType } from '@/types/auth'
 
-import { useAuth } from '@/hooks/use-auth'
+// import { useAuth } from '@/hooks/use-auth'
 import { useCurrentUser } from '@/hooks/use-current-user'
+
+// import { useRefreshAccessToken } from '@/hooks/use-refresh-access-token'
 
 export const ProtectedGate: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
-  const { auth } = useAuth()
+  // const refreshAccessToken = useRefreshAccessToken()
+  const { session } = useAuth()
   const path = usePathname()
 
   // const currentUser = useCurrentUser()
@@ -66,7 +72,22 @@ export const ProtectedGate: React.FC<{ children: React.ReactNode }> = ({
 
   // if (isError) redirect('/login')
 
-  if (!auth?.accessToken) {
+  // const { isError } = useQuery({
+  //   queryKey: ['verifyRefreshToken'],
+  //   queryFn: async () => {
+  //     await API.get(REFRESH_ACCESS_TOKEN)
+  //   }
+  // })
+
+  // if (isError) redirect(`/login?callbackUrl=${encodeURIComponent(path)}`)
+
+  // useEffect(() => {
+  //   if (!auth?.accessToken) {
+  //     refreshAccessToken()
+  //   }
+  // }, [auth?.accessToken, refreshAccessToken])
+
+  if (!session?.accessToken) {
     redirect(`/login?callbackUrl=${encodeURIComponent(path)}`)
   }
 

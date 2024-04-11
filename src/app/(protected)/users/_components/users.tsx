@@ -8,8 +8,8 @@ import axios from 'axios'
 
 import { UserType } from '@/types/auth'
 
-import { useAuth } from '@/hooks/use-auth'
-import { useRefreshAccessToken } from '@/hooks/use-refresh-access-token'
+// import { useAuth } from '@/hooks/use-auth'
+// import { useRefreshAccessToken } from '@/hooks/use-refresh-access-token'
 import { useRefreshAccessTokenInterceptor } from '@/hooks/use-refresh-access-token-interceptor'
 
 import { Button } from '@/components/ui/button'
@@ -24,34 +24,17 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export const Users = () => {
   const API_PRIVATE = useRefreshAccessTokenInterceptor()
-  const { auth } = useAuth()
-  const refreshAccessToken = useRefreshAccessToken()
+  // const { auth } = useAuth()
+  // const refreshAccessToken = useRefreshAccessToken()
 
-  const {
-    data: usersData,
-    isLoading: isLoadingUsers,
-    error
-  } = useQuery<UserType[]>({
+  const { data: usersData, isLoading: isLoadingUsers } = useQuery<UserType[]>({
     queryKey: ['users'],
     queryFn: async () => {
-      try {
-        const response = await API_PRIVATE.get(GET_ALL_USERS)
+      const response = await API_PRIVATE.get(GET_ALL_USERS)
 
-        return response.data
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const { message } = error.response?.data
-
-          throw message
-        }
-
-        throw error
-      }
+      return response.data
     }
   })
-
-  console.log('DATA: ', usersData)
-  console.log('ERROR: ', error)
 
   // const [users, setUsers] = useState<UserType[]>()
 
@@ -132,9 +115,6 @@ export const Users = () => {
           ))}
         </ul>
       </CardContent>
-      <CardFooter>
-        <div>{auth?.accessToken}</div>
-      </CardFooter>
     </Card>
   )
 }

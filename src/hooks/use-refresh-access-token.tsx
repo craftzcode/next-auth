@@ -1,56 +1,91 @@
-import { refreshAccessToken } from '@/actions/auth'
-import { API, REFRESH_ACCESS_TOKEN } from '@/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
+// import { redirect, usePathname } from 'next/navigation'
 
-import { AuthType } from '@/types/auth'
+// import { refreshAccessToken } from '@/actions/auth'
+// import { API, REFRESH_ACCESS_TOKEN } from '@/api'
+// import { useMutation, useQuery } from '@tanstack/react-query'
 
-import { useAuth } from './use-auth'
+// import { AuthType } from '@/types/auth'
 
-export const useRefreshAccessToken = () => {
-  const { setAuth } = useAuth()
+// import { useAuth } from './use-auth'
 
-  // const refreshAccessTokenHandle = async () => {
-  //   const response = await refreshAccessToken()
+// export const useRefreshAccessToken = () => {
+//   const { setAuth, auth } = useAuth()
 
-  //   setAuth({ accessToken: response.data })
+//   // const refreshAccessTokenHandle = async () => {
+//   //   const response = await refreshAccessToken()
 
-  //   return response.data
-  // }
+//   //   setAuth({ accessToken: response.data })
 
-  // const { data, isError } = useQuery<AuthType>({
-  //   queryKey: ['refresh'],
-  //   queryFn: async () => {
-  //     const response = await API.get(REFRESH_ACCESS_TOKEN)
-  //     setAuth(response.data)
-  //     return response.data
-  //   }
-  // })
+//   //   return response.data
+//   // }
 
-  // if (isError) {
-  //   setAuth(null)
-  // }
+//   // const { data, isError } = useQuery<AuthType>({
+//   //   queryKey: ['refresh'],
+//   //   queryFn: async () => {
+//   //     const response = await API.get(REFRESH_ACCESS_TOKEN)
+//   //     setAuth(response.data)
+//   //     return response.data
+//   //   }
+//   // })
 
-  const { mutate: refreshAccessTokenHandle, data } = useMutation<AuthType>({
-    mutationKey: ['refreshAccessToken'],
-    mutationFn: async () => {
-      const response = await API.get(REFRESH_ACCESS_TOKEN)
-      return response.data
-    }
-  })
+//   // if (isError) {
+//   //   setAuth(null)
+//   // }
 
-  const refreshAccessToken = () => {
-    refreshAccessTokenHandle()
+//   // const { mutate: refreshAccessTokenHandle } = useMutation<AuthType>({
+//   //   // mutationKey: ['refreshAccessToken'],
+//   //   mutationFn: async () => {
+//   //     const response = await API.get(REFRESH_ACCESS_TOKEN)
 
-    return data?.accessToken
-  }
+//   //     return response.data
+//   //   },
+//   //   onSuccess(data) {
+//   //     console.log('ON SUCCESS: ', data.accessToken)
 
-  // const refreshAccessToken = () => {
-  //   refetch()
+//   //     setAuth(prev => {
+//   //       return { ...prev, accessToken: data.accessToken }
+//   //     })
+//   //   },
+//   //   onError() {
+//   //     setAuth(null)
+//   //   }
+//   // })
 
-  //   setAuth({ accessToken })
+//   // const refreshAccessToken = () => {
+//   //   refreshAccessTokenHandle()
 
-  //   return accessToken
-  // }
+//   //   return auth?.accessToken
+//   // }
 
-  return refreshAccessToken
-}
+//   const refreshAccessToken = async () => {
+//     const res = await API.get(REFRESH_ACCESS_TOKEN)
+//     return res.data
+//   }
+
+//   const { mutateAsync } = useMutation<AuthType>({
+//     mutationFn: refreshAccessToken,
+//     onSuccess(data) {
+//       console.log('ON SUCCESS: ', data.accessToken)
+
+//       setAuth(prev => {
+//         return { ...prev, accessToken: data.accessToken }
+//       })
+//     },
+//     onError() {
+//       setAuth(null)
+//     }
+//   })
+
+//   const refreshAccessTokenHandle = async () => {
+//     await mutateAsync()
+
+//     return auth?.accessToken
+//   }
+
+//   // const { data, isError, isSuccess } = useQuery<AuthType>({
+//   //   queryKey: ['refreshAccessToken'],
+//   //   queryFn: refreshAccessToken
+//   // })
+
+//   return refreshAccessTokenHandle
+// }

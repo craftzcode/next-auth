@@ -5,18 +5,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { login } from '@/actions/auth'
-import { API, GET_CURRENT_USER, LOGIN } from '@/api'
+import { API, LOGIN } from '@/api'
+import { useAuth } from '@/context/auth-context'
 import { loginSchema } from '@/schemas/login.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import axios, { isAxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { AuthType } from '@/types/auth'
-
-import { useAuth } from '@/hooks/use-auth'
+// import { useAuth } from '@/hooks/use-auth'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -31,7 +29,9 @@ import { Input } from '@/components/ui/input'
 import { AuthError } from '@/components/auth/auth-status'
 
 export const LoginForm = () => {
-  const { setAuth } = useAuth()
+  // const { setAuth } = useAuth()
+
+  const { login } = useAuth()
 
   const [error, setError] = useState<string | undefined>()
 
@@ -39,25 +39,25 @@ export const LoginForm = () => {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl')
 
-  const { mutate: login } = useMutation({
-    mutationKey: ['login'],
-    mutationFn: async (values: z.infer<typeof loginSchema>) => {
-      const response = await API.post(LOGIN, values)
+  // const { mutate: login } = useMutation({
+  //   mutationKey: ['login'],
+  //   mutationFn: async (values: z.infer<typeof loginSchema>) => {
+  //     const response = await API.post(LOGIN, values)
 
-      setAuth({
-        user: response.data.user,
-        accessToken: response.data.accessToken
-      })
-    },
-    onError: error => {
-      if (isAxiosError(error)) {
-        setError(error.response?.data.message)
-      }
-    },
-    onSuccess: () => {
-      router.push(callbackUrl || '/profile')
-    }
-  })
+  //     setAuth({
+  //       user: response.data.user,
+  //       accessToken: response.data.accessToken
+  //     })
+  //   },
+  //   onError: error => {
+  //     if (isAxiosError(error)) {
+  //       setError(error.response?.data.message)
+  //     }
+  //   },
+  //   onSuccess: () => {
+  //     router.push(callbackUrl || '/profile')
+  //   }
+  // })
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -68,7 +68,13 @@ export const LoginForm = () => {
   })
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    login(values)
+    try {
+      await login(values)
+    } catch (error) {
+      if (isAxiosError(error)) {
+        setError(error.response?.data.message)
+      }
+    }
 
     // //! We will get the (accessToken) from our backend api
     // const { data, error } = await login(values)

@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 
 import { API, GET_CURRENT_USER } from '@/api'
+import { useAuth } from '@/context/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import { UserType } from '@/types/auth'
 
-import { useAuth } from './use-auth'
+// import { useAuth } from './use-auth'
 import { useRefreshAccessTokenInterceptor } from './use-refresh-access-token-interceptor'
 
 export const useCurrentUser = () => {
@@ -48,7 +49,7 @@ export const useCurrentUser = () => {
   //   }
   // })
 
-  const { auth } = useAuth()
+  const { session } = useAuth()
 
-  return auth?.user
+  return session?.user
 }

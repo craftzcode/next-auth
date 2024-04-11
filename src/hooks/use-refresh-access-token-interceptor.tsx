@@ -1,21 +1,22 @@
 import { useEffect } from 'react'
 
 import { API_PRIVATE } from '@/api'
+import { useAuth } from '@/context/auth-context'
 
-import { useAuth } from './use-auth'
-import { useRefreshAccessToken } from './use-refresh-access-token'
+// import { useAuth } from './use-auth'
+// import { useRefreshAccessToken } from './use-refresh-access-token'
 
 export const useRefreshAccessTokenInterceptor = () => {
-  const { auth } = useAuth()
-  const refreshAccessToken = useRefreshAccessToken()
+  const { session, refreshAccessToken } = useAuth()
+  // const refreshAccessToken = useRefreshAccessToken()
 
   useEffect(() => {
     //! In the first request we add the (accessToken) to the (Authorization Bearer)
     const requestIntercept = API_PRIVATE.interceptors.request.use(
       config => {
         if (!config.headers['Authorization']) {
-          console.log('FIRST ACCESS TOKEN: ', auth?.accessToken)
-          config.headers['Authorization'] = `Bearer ${auth?.accessToken}`
+          console.log('FIRST ACCESS TOKEN: ', session?.accessToken)
+          config.headers['Authorization'] = `Bearer ${session?.accessToken}`
         }
         return config
       },
@@ -29,9 +30,9 @@ export const useRefreshAccessTokenInterceptor = () => {
         const prevRequest = error?.config
         if (error?.response?.status === 401 && !prevRequest?.sent) {
           prevRequest.sent = true
-          const newAccessToken = refreshAccessToken()
-          console.log('NEW ACCESS TOKEN: ', newAccessToken)
-          prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
+          const data = refreshAccessToken()
+          console.log('NEW ACCESS TOKEN: ', data)
+          prevRequest.headers['Authorization'] = `Bearer ${data}`
           return API_PRIVATE(prevRequest)
         }
         return Promise.reject(error)
@@ -42,7 +43,7 @@ export const useRefreshAccessTokenInterceptor = () => {
       API_PRIVATE.interceptors.request.eject(requestIntercept)
       API_PRIVATE.interceptors.response.eject(responseIntercept)
     }
-  }, [auth?.accessToken, refreshAccessToken])
+  }, [session?.accessToken, refreshAccessToken])
 
   return API_PRIVATE
 }
