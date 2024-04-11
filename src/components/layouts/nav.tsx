@@ -1,17 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { redirect, usePathname, useRouter } from 'next/navigation'
+
+import { logout } from '@/actions/auth'
+import { API, LOGOUT } from '@/api'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { cn } from '@/lib/utils'
 
-import { useLogout } from '@/hooks/use-logout'
+import { useAuth } from '@/hooks/use-auth'
+
+// import { useLogout } from '@/hooks/use-logout'
 
 import { Button } from '../ui/button'
 
 export const Nav = () => {
   const path = usePathname()
-  const logout = useLogout()
+  const router = useRouter()
+  const { setAuth } = useAuth()
+  // const logout = useLogout()
 
   const ROUTES = [
     {
@@ -27,6 +35,20 @@ export const Nav = () => {
       href: '/profile'
     }
   ]
+
+  const { mutate: logoutHandle } = useMutation({
+    mutationFn: async () => {
+      // await logout()
+      await API.post(LOGOUT)
+      setAuth(null)
+    },
+    onError: error => {
+      console.log(error)
+    },
+    onSuccess: () => {
+      // router.push('/login')
+    }
+  })
 
   return (
     <header className='w-full rounded-xl bg-card p-6'>
@@ -47,7 +69,7 @@ export const Nav = () => {
           </ul>
         </nav>
 
-        <Button variant='destructive' onClick={() => logout()}>
+        <Button variant='destructive' onClick={() => logoutHandle()}>
           Logout
         </Button>
       </div>

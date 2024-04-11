@@ -8,13 +8,24 @@ import axios from 'axios'
 
 import { UserType } from '@/types/auth'
 
+import { useAuth } from '@/hooks/use-auth'
+import { useRefreshAccessToken } from '@/hooks/use-refresh-access-token'
 import { useRefreshAccessTokenInterceptor } from '@/hooks/use-refresh-access-token-interceptor'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const Users = () => {
   const API_PRIVATE = useRefreshAccessTokenInterceptor()
+  const { auth } = useAuth()
+  const refreshAccessToken = useRefreshAccessToken()
 
   const {
     data: usersData,
@@ -110,23 +121,20 @@ export const Users = () => {
         <CardTitle>All Users</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* <ul className='space-y-2'>
-          {usersData ? (
-            usersData.map(user => (
-              <li key={user.id} className='rounded border p-4'>
-                <div>
-                  <h2>{user.name}</h2>
-                  <h3 className='text-sm text-muted-foreground'>{user.role}</h3>
-                </div>
-              </li>
-            ))
-          ) : (
-            <div className='flex items-center justify-center'>
-              <p>No Users</p>
-            </div>
-          )}
-        </ul> */}
+        <ul className='space-y-2'>
+          {usersData?.map(user => (
+            <li key={user.id} className='rounded border p-4'>
+              <div>
+                <h2>{user.name}</h2>
+                <h3 className='text-sm text-muted-foreground'>{user.role}</h3>
+              </div>
+            </li>
+          ))}
+        </ul>
       </CardContent>
+      <CardFooter>
+        <div>{auth?.accessToken}</div>
+      </CardFooter>
     </Card>
   )
 }

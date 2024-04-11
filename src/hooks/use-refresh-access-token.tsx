@@ -1,17 +1,56 @@
 import { refreshAccessToken } from '@/actions/auth'
+import { API, REFRESH_ACCESS_TOKEN } from '@/api'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
-import { useAccessToken } from './use-access-token'
+import { AuthType } from '@/types/auth'
+
+import { useAuth } from './use-auth'
 
 export const useRefreshAccessToken = () => {
-  const { setAccessToken } = useAccessToken()
+  const { setAuth } = useAuth()
 
-  const refreshAccessTokenHandle = async () => {
-    const { data } = await refreshAccessToken()
+  // const refreshAccessTokenHandle = async () => {
+  //   const response = await refreshAccessToken()
 
-    setAccessToken(data)
+  //   setAuth({ accessToken: response.data })
 
-    return data
+  //   return response.data
+  // }
+
+  // const { data, isError } = useQuery<AuthType>({
+  //   queryKey: ['refresh'],
+  //   queryFn: async () => {
+  //     const response = await API.get(REFRESH_ACCESS_TOKEN)
+  //     setAuth(response.data)
+  //     return response.data
+  //   }
+  // })
+
+  // if (isError) {
+  //   setAuth(null)
+  // }
+
+  const { mutate: refreshAccessTokenHandle, data } = useMutation<AuthType>({
+    mutationKey: ['refreshAccessToken'],
+    mutationFn: async () => {
+      const response = await API.get(REFRESH_ACCESS_TOKEN)
+      return response.data
+    }
+  })
+
+  const refreshAccessToken = () => {
+    refreshAccessTokenHandle()
+
+    return data?.accessToken
   }
 
-  return refreshAccessTokenHandle
+  // const refreshAccessToken = () => {
+  //   refetch()
+
+  //   setAuth({ accessToken })
+
+  //   return accessToken
+  // }
+
+  return refreshAccessToken
 }

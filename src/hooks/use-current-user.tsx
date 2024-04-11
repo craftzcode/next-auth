@@ -2,37 +2,53 @@
 
 import { useEffect, useState } from 'react'
 
-import { GET_CURRENT_USER } from '@/api'
+import { API, GET_CURRENT_USER } from '@/api'
+import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import { UserType } from '@/types/auth'
 
+import { useAuth } from './use-auth'
 import { useRefreshAccessTokenInterceptor } from './use-refresh-access-token-interceptor'
 
 export const useCurrentUser = () => {
-  const [currentUser, setCurrentUser] = useState<UserType | null>(null)
-  const API_PRIVATE = useRefreshAccessTokenInterceptor()
+  // const [currentUser, setCurrentUser] = useState<UserType | null>(null)
+  // const API_PRIVATE = useRefreshAccessTokenInterceptor()
 
-  useEffect(() => {
-    const getCurrentUserHandle = async () => {
-      try {
-        const response = await API_PRIVATE.get(GET_CURRENT_USER)
+  // useEffect(() => {
+  //   const getCurrentUserHandle = async () => {
+  //     try {
+  //       const response = await API_PRIVATE.get(GET_CURRENT_USER)
 
-        setCurrentUser(response.data.user)
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const { message } = error.response?.data
-          console.log('INSIDE_AUTH_GET-USER-SESSION: ', message)
-          return { error: message }
-        }
+  //       setCurrentUser(response.data.user)
+  //     } catch (error) {
+  //       if (axios.isAxiosError(error)) {
+  //         const { message } = error.response?.data
+  //         console.log('INSIDE_AUTH_GET-USER-SESSION: ', message)
+  //         return { error: message }
+  //       }
 
-        console.log('INSIDE_AUTH_GET-USER-SESSION: ', error)
-        throw error
-      }
-    }
+  //       console.log('INSIDE_AUTH_GET-USER-SESSION: ', error)
+  //       throw error
+  //     }
+  //   }
 
-    getCurrentUserHandle()
-  }, [API_PRIVATE])
+  //   getCurrentUserHandle()
+  // }, [API_PRIVATE])
 
-  return currentUser
+  // const {
+  //   data: currentUser,
+  //   isLoading: isLoadingCurrentUser,
+  //   error
+  // } = useQuery<UserType>({
+  //   queryKey: ['user'],
+  //   queryFn: async () => {
+  //     const response = await API.get(GET_CURRENT_USER)
+  //     return response.data.user
+  //   }
+  // })
+
+  const { auth } = useAuth()
+
+  return auth?.user
 }

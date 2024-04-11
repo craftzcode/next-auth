@@ -2,11 +2,11 @@ import { useEffect } from 'react'
 
 import { API_PRIVATE } from '@/api'
 
-import { useAccessToken } from './use-access-token'
+import { useAuth } from './use-auth'
 import { useRefreshAccessToken } from './use-refresh-access-token'
 
 export const useRefreshAccessTokenInterceptor = () => {
-  const { accessToken } = useAccessToken()
+  const { auth } = useAuth()
   const refreshAccessToken = useRefreshAccessToken()
 
   useEffect(() => {
@@ -14,8 +14,8 @@ export const useRefreshAccessTokenInterceptor = () => {
     const requestIntercept = API_PRIVATE.interceptors.request.use(
       config => {
         if (!config.headers['Authorization']) {
-          console.log('FIRST ACCESS TOKEN: ', accessToken)
-          config.headers['Authorization'] = `Bearer ${accessToken}`
+          console.log('FIRST ACCESS TOKEN: ', auth?.accessToken)
+          config.headers['Authorization'] = `Bearer ${auth?.accessToken}`
         }
         return config
       },
@@ -29,8 +29,8 @@ export const useRefreshAccessTokenInterceptor = () => {
         const prevRequest = error?.config
         if (error?.response?.status === 401 && !prevRequest?.sent) {
           prevRequest.sent = true
-          const newAccessToken = await refreshAccessToken()
-          console.log('NEW ACCESS TOKEN: ', accessToken)
+          const newAccessToken = refreshAccessToken()
+          console.log('NEW ACCESS TOKEN: ', newAccessToken)
           prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
           return API_PRIVATE(prevRequest)
         }
@@ -42,7 +42,7 @@ export const useRefreshAccessTokenInterceptor = () => {
       API_PRIVATE.interceptors.request.eject(requestIntercept)
       API_PRIVATE.interceptors.response.eject(responseIntercept)
     }
-  }, [accessToken, refreshAccessToken])
+  }, [auth?.accessToken, refreshAccessToken])
 
   return API_PRIVATE
 }

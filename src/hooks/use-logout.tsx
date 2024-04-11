@@ -4,14 +4,14 @@ import { useRouter } from 'next/navigation'
 
 import { logout } from '@/actions/auth'
 
-import { useAccessToken } from './use-access-token'
+import { useAuth } from './use-auth'
 
 export const useLogout = () => {
-  const { setAccessToken } = useAccessToken()
+  const { setAuth } = useAuth()
   const router = useRouter()
 
   const logoutHandle = async () => {
-    setAccessToken(undefined)
+    setAuth(null)
     await logout()
     router.push('/login')
   }

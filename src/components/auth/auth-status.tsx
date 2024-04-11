@@ -3,7 +3,7 @@ import {
   ExclamationTriangleIcon
 } from '@radix-ui/react-icons'
 
-export const AuthError: React.FC<{ message: string }> = ({ message }) => {
+export const AuthError: React.FC<{ message?: string }> = ({ message }) => {
   if (!message) return null
 
   return (

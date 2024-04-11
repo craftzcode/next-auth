@@ -1,6 +1,6 @@
 'use client'
 
-import { AccessTokenProvider } from '@/context/access-token-context'
+import { AuthProvider } from '@/context/auth-context'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
@@ -11,7 +11,7 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AccessTokenProvider>{children}</AccessTokenProvider>
+      <AuthProvider>{children}</AuthProvider>
       <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   )

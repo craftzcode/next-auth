@@ -1,15 +1,22 @@
 'use client'
 
+import { useState } from 'react'
+
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import { login } from '@/actions/auth'
+import { API, GET_CURRENT_USER, LOGIN } from '@/api'
 import { loginSchema } from '@/schemas/login.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+import axios, { isAxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { useAccessToken } from '@/hooks/use-access-token'
+import { AuthType } from '@/types/auth'
+
+import { useAuth } from '@/hooks/use-auth'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,10 +28,36 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { AuthError } from '@/components/auth/auth-status'
 
 export const LoginForm = () => {
-  const { setAccessToken } = useAccessToken()
+  const { setAuth } = useAuth()
+
+  const [error, setError] = useState<string | undefined>()
+
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl')
+
+  const { mutate: login } = useMutation({
+    mutationKey: ['login'],
+    mutationFn: async (values: z.infer<typeof loginSchema>) => {
+      const response = await API.post(LOGIN, values)
+
+      setAuth({
+        user: response.data.user,
+        accessToken: response.data.accessToken
+      })
+    },
+    onError: error => {
+      if (isAxiosError(error)) {
+        setError(error.response?.data.message)
+      }
+    },
+    onSuccess: () => {
+      router.push(callbackUrl || '/profile')
+    }
+  })
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -35,17 +68,17 @@ export const LoginForm = () => {
   })
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    //! We will get the (accessToken) from our backend api
-    const { data, error } = await login(values)
+    login(values)
 
-    if (!error) {
-      //! We will store the (accessToken) on our app memory (useState) instead on (localStorage) so it can wipe the (accessToken) once the user close the website or refresh
-      //! Even if we store the (accessToken) in (useState), (useContext), or (localStorage), we'll still lose authorization. That's because it's the backend API that checks if the access token has expired or not. So, even if we keep the access token in our frontend storage forever, once we make a request to the backend API, it will check if the access token is expired or not.
-      setAccessToken(data)
-      router.push('/profile')
-    } else {
-      console.log(error)
-    }
+    // //! We will get the (accessToken) from our backend api
+    // const { data, error } = await login(values)
+    // if (!error) {
+    //   //! We will store the (accessToken) on our app memory (useState) instead on (localStorage) so it can wipe the (accessToken) once the user close the website or refresh
+    //   //! Even if we store the (accessToken) in (useState), (useContext), or (localStorage), we'll still lose authorization. That's because it's the backend API that checks if the access token has expired or not. So, even if we keep the access token in our frontend storage forever, once we make a request to the backend API, it will check if the access token is expired or not.
+    //   router.push('/profile')
+    // } else {
+    //   console.log(error)
+    // }
   }
 
   return (
@@ -99,6 +132,8 @@ export const LoginForm = () => {
                   </FormItem>
                 )}
               />
+
+              <AuthError message={error} />
 
               <Button type='submit' className='w-full'>
                 Login

@@ -1,4 +1,5 @@
 export interface AuthType {
+  user?: UserType
   accessToken?: string
 }
 
