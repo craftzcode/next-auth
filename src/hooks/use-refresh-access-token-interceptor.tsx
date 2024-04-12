@@ -30,9 +30,9 @@ export const useRefreshAccessTokenInterceptor = () => {
         const prevRequest = error?.config
         if (error?.response?.status === 401 && !prevRequest?.sent) {
           prevRequest.sent = true
-          const data = refreshAccessToken()
-          console.log('NEW ACCESS TOKEN: ', data)
-          prevRequest.headers['Authorization'] = `Bearer ${data}`
+          const data = await refreshAccessToken()
+          console.log('NEW ACCESS TOKEN: ', data.accessToken)
+          prevRequest.headers['Authorization'] = `Bearer ${data.accessToken}`
           return API_PRIVATE(prevRequest)
         }
         return Promise.reject(error)

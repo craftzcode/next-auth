@@ -1,6 +1,12 @@
 // import { createContext, Dispatch, SetStateAction, useState } from 'react'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -58,19 +64,14 @@ interface AuthContextType {
     unknown
   >
   logout: () => void
-  refreshAccessToken: UseMutateFunction<
-    Omit<AuthType, 'user'>,
-    Error,
-    void,
-    unknown
-  >
+  refreshAccessToken: UseMutateAsyncFunction<AuthType, Error, void, unknown>
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   login: () => Promise.resolve({} as AuthType),
   logout: () => {},
-  refreshAccessToken: () => {}
+  refreshAccessToken: () => Promise.resolve({} as AuthType)
 })
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -84,26 +85,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl')
 
-  const { mutate: refreshAccessToken } = useMutation({
-    mutationFn: async (): Promise<Omit<AuthType, 'user'>> => {
-      const response = await API.get(REFRESH_ACCESS_TOKEN)
+  const { mutateAsync: refreshAccessToken } = useMutation({
+    mutationFn: async (): Promise<AuthType> => {
+      const response = await fetch(
+        'http://localhost:3001/api/auth/refresh-access-token',
+        { credentials: 'include' }
+      )
 
-      return response.data
+      const data = await response.json()
+
+      return data
     },
     onSuccess(data) {
-      setSession(prevUser => {
-        return { ...prevUser, accessToken: data.accessToken }
+      setSession({
+        user: data.user,
+        accessToken: data.accessToken
       })
     },
     onError() {
       setSession(null)
     },
     onSettled() {
-      setIsLoading(true)
+      setIsLoading(false)
     }
   })
 
+  // const refreshAccessToken = useCallback(async () => {
+  //   try {
+  //     const response = await fetch(
+  //       'http://localhost:3001/api/auth/refresh-access-token',
+  //       { credentials: 'include' }
+  //     )
+
+  //     const data = await response.json()
+
+  //     return data
+  //   } catch (error) {
+  //     console.error('Error refreshing access token:', error)
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // }, [])
+
   useEffect(() => {
+    // const verifyRefreshToken = async () => {
+    //   //   try {
+    //   //     const response = await refreshAccessToken()
+    //   //     // setSession(prevUser => {
+    //   //     //   return { ...prevUser, accessToken: response.accessToken }
+    //   //     // })
+
+    //   //     setSession({ user: response.user, accessToken: response.accessToken })
+    //   //   } catch (error) {
+    //   //     setSession(null)
+    //   //   } finally {
+    //   //     setIsLoading(false)
+    //   //   }
+
+    //   // !session?.accessToken ? verifyRefreshToken() : setIsLoading(false)
+
+    //   try {
+    //     const response = await API.get(REFRESH_ACCESS_TOKEN)
+
+    //     setSession({
+    //       user: response.data.user,
+    //       accessToken: response.data.accessToken
+    //     })
+    //   } catch (error) {
+    //     setSession(null)
+    //   } finally {
+    //     setIsLoading(false)
+    //   }
+    // }
+
+    // verifyRefreshToken()
+
     refreshAccessToken()
   }, [refreshAccessToken])
 
@@ -150,6 +206,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     logout,
     refreshAccessToken
   }
+
+  if (isLoading) return null
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
